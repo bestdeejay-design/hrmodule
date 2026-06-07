@@ -42,7 +42,28 @@ const appData = {
     { action: 'Куплена кружка в магазине', date: '5 дней назад' },
     { action: 'Достигнут 12 уровень', date: 'Неделя назад' },
     { action: 'Завершён спринт (+300 баллов)', date: '10 дней назад' }
-  ]
+  ],
+  gratitude: {
+    values: [
+      { id: 1, name: 'Командность', color: '#8B5CF6' },
+      { id: 2, name: 'Ответственность', color: '#10B981' },
+      { id: 3, name: 'Инновации', color: '#F59E0B' },
+      { id: 4, name: 'Клиентоориент.', color: '#3B82F6' },
+      { id: 5, name: 'Развитие', color: '#EC4899' }
+    ],
+    thanks: [
+      { id: 1, from: 2, to: 1, value: 1, message: 'За помощь со спринтом! 🔥', time: '10:30', date: 'Сегодня' },
+      { id: 2, from: 3, to: 1, value: 3, message: 'Классный дизайн нового экрана', time: '09:15', date: 'Сегодня' },
+      { id: 3, from: 4, to: 2, value: 2, message: 'Выручил с отчётом для клиента', time: 'Вчера', date: 'Вчера' },
+      { id: 4, from: 1, to: 3, value: 5, message: 'Спасибо за консультацию по UI!', time: 'Вчера', date: 'Вчера' },
+      { id: 5, from: 5, to: 1, value: 1, message: 'Отличная презентация на совещании', time: 'Пн', date: 'Пн' },
+      { id: 6, from: 1, to: 5, value: 4, message: 'Спасибо за организацию тренинга', time: 'Пн', date: 'Пн' },
+      { id: 7, from: 3, to: 4, value: 5, message: 'Крутая идея для A/B теста!', time: 'Вс', date: 'Вс' },
+      { id: 8, from: 2, to: 1, value: 2, message: 'Всегда на связи, спасибо!', time: 'Сб', date: 'Сб' },
+      { id: 9, from: 1, to: 2, value: 3, message: 'Отличная стратегия продвижения', time: 'Пт', date: 'Пт' },
+      { id: 10, from: 4, to: 5, value: 4, message: 'Тренинг был очень полезным!', time: 'Пт', date: 'Пт' }
+    ]
+  }
 };
 
 let history = ['home'];
@@ -121,7 +142,8 @@ function updateHeader(pageName) {
     tasks: 'Tasks',
     leaders: 'Leaders',
     shop: 'Shop',
-    profile: 'Profile'
+    profile: 'Profile',
+    gratitude: 'Благодарности'
   };
   document.getElementById('appTitle').textContent = titles[pageName] || 'Home';
 }
@@ -133,6 +155,7 @@ function renderContent(pageName) {
   else if (pageName === 'leaders') content.innerHTML = renderLeaders();
   else if (pageName === 'shop') content.innerHTML = renderShop();
   else if (pageName === 'profile') content.innerHTML = renderProfile();
+  else if (pageName === 'gratitude') content.innerHTML = renderGratitude();
 }
 
 function getUser() {
@@ -148,6 +171,33 @@ function renderHome() {
   const earnedPoints = appData.tasks.filter(t => t.done).reduce((s, t) => s + t.points, 0);
   const userRank = appData.employees.findIndex(e => e.id === user.id) + 1;
   const earnedBadges = appData.badges.filter(b => b.earned).slice(0, 4);
+
+  const gratitudeData = (() => {
+    const g = appData.gratitude;
+    const employees = appData.employees;
+    const userId = appData.currentUser;
+    const senders = new Set(g.thanks.map(t => t.from));
+    const receivers = new Set(g.thanks.map(t => t.to));
+    const involved = new Set([...senders, ...receivers]);
+    const engagementIndex = Math.round((involved.size / employees.length) * 100);
+    const sentByMe = g.thanks.filter(t => t.from === userId).length;
+    const receivedByMe = g.thanks.filter(t => t.to === userId).length;
+    const valueCounts = {};
+    g.thanks.forEach(t => { valueCounts[t.value] = (valueCounts[t.value] || 0) + 1; });
+    let topValueId = null, topCount = 0;
+    Object.keys(valueCounts).forEach(k => {
+      if (valueCounts[k] > topCount) { topCount = valueCounts[k]; topValueId = parseInt(k); }
+    });
+    const topValueObj = topValueId ? g.values.find(v => v.id === topValueId) : null;
+    return {
+      ...g,
+      engagementIndex,
+      sentByMe,
+      receivedByMe,
+      totalThanks: g.thanks.length,
+      topValue: topValueObj ? topValueObj.name : '-'
+    };
+  })();
 
   return `
     <div class="page-content">
@@ -221,6 +271,17 @@ function renderHome() {
             <span>${b.name}</span>
           </div>
         `).join('')}
+      </div>
+
+      <div class="dashboard-card wide accent" onclick="showPage('gratitude')" style="margin-top:16px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <svg class="icon" style="flex-shrink:0;color:#EC4899"><use href="#icon-heart"/></svg>
+          <div style="flex:1">
+            <h4>Благодарности</h4>
+            <p style="font-size:12px;color:var(--text-muted)">${gratitudeData.thanks.length} спасибо • Индекс вовлечённости: ${gratitudeData.engagementIndex}%</p>
+          </div>
+          <span style="font-size:20px">&rarr;</span>
+        </div>
       </div>
     </div>
   `;
@@ -530,6 +591,147 @@ function renderProfile() {
       </div>
     </div>
   `;
+}
+
+let selectedThankValue = null;
+
+function selectThankValue(id) {
+  selectedThankValue = id;
+  document.querySelectorAll('.value-pill').forEach(p => p.classList.remove('active'));
+  const pill = document.querySelector(`.value-pill[data-value="${id}"]`);
+  if (pill) pill.classList.add('active');
+}
+
+function sendThankYou() {
+  const toId = parseInt(document.getElementById('thankTo').value);
+  const message = document.getElementById('thankMessage').value.trim();
+  const user = getUser();
+  if (!toId) { showToast('Выберите получателя'); return; }
+  if (!selectedThankValue) { showToast('Выберите ценность'); return; }
+  if (!message) { showToast('Напишите сообщение'); return; }
+  const gratitude = appData.gratitude;
+  const newId = Math.max(...gratitude.thanks.map(t => t.id), 0) + 1;
+  gratitude.thanks.unshift({
+    id: newId,
+    from: user.id,
+    to: toId,
+    value: selectedThankValue,
+    message: message,
+    time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+    date: 'Сегодня'
+  });
+  document.getElementById('thankTo').value = '';
+  document.getElementById('thankMessage').value = '';
+  selectedThankValue = null;
+  document.querySelectorAll('.value-pill').forEach(p => p.classList.remove('active'));
+  showToast('Благодарность отправлена! ❤️');
+  renderContent('gratitude');
+}
+
+function renderGratitude() {
+  const gratitude = appData.gratitude;
+  const employees = appData.employees;
+  const user = getUser();
+  const senders = new Set(gratitude.thanks.map(t => t.from));
+  const receivers = new Set(gratitude.thanks.map(t => t.to));
+  const involved = new Set([...senders, ...receivers]);
+  const engagementIndex = Math.round((involved.size / employees.length) * 100);
+  const sentByMe = gratitude.thanks.filter(t => t.from === user.id).length;
+  const receivedByMe = gratitude.thanks.filter(t => t.to === user.id).length;
+  const valueCounts = {};
+  gratitude.thanks.forEach(t => { valueCounts[t.value] = (valueCounts[t.value] || 0) + 1; });
+  let topValueId = null, topCount = 0;
+  Object.keys(valueCounts).forEach(k => {
+    if (valueCounts[k] > topCount) { topCount = valueCounts[k]; topValueId = parseInt(k); }
+  });
+  const topValueObj = topValueId ? gratitude.values.find(v => v.id === topValueId) : null;
+  const thankedCount = {};
+  gratitude.thanks.forEach(t => { thankedCount[t.to] = (thankedCount[t.to] || 0) + 1; });
+  const topThanked = Object.keys(thankedCount)
+    .map(id => ({ id: parseInt(id), count: thankedCount[id] }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+  const getEmployee = (id) => employees.find(e => e.id === id);
+  const otherEmployees = employees.filter(e => e.id !== user.id);
+  let html = `
+    <div class="page-content">
+      <div class="gratitude-header">
+        <div class="gratitude-stat">
+          <span class="g-stat-value">${engagementIndex}%</span>
+          <span class="g-stat-label">Индекс вовлечённости</span>
+        </div>
+        <div class="gratitude-stat">
+          <span class="g-stat-value">${gratitude.thanks.length}</span>
+          <span class="g-stat-label">Всего спасибо</span>
+        </div>
+      </div>
+      <div class="gratitude-balance">
+        <div class="g-balance-item sent">
+          <div class="num">${sentByMe}</div>
+          <div class="lbl">Отправлено</div>
+        </div>
+        <div class="g-balance-item received">
+          <div class="num">${receivedByMe}</div>
+          <div class="lbl">Получено</div>
+        </div>
+      </div>
+      <div class="send-gratitude" id="sendGratitude">
+        <h4><svg class="icon" style="color:#EC4899"><use href="#icon-heart"/></svg> Отправить благодарность</h4>
+        <div class="send-row">
+          <select class="send-select" id="thankTo">
+            <option value="">Кому</option>
+            ${otherEmployees.map(e => `<option value="${e.id}">${e.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="value-pills" id="valuePills">
+          ${gratitude.values.map(v => `
+            <button class="value-pill" style="background:${v.color}" data-value="${v.id}" onclick="selectThankValue(${v.id})">${v.name}</button>
+          `).join('')}
+        </div>
+        <textarea class="send-input" id="thankMessage" placeholder="Напишите, за что благодарите..." rows="2"></textarea>
+        <button class="send-btn" onclick="sendThankYou()">Отправить ❤️</button>
+      </div>
+      <h3>Лента благодарностей</h3>
+      <div class="thanks-feed">
+        ${gratitude.thanks.map(t => {
+          const fromEmp = getEmployee(t.from);
+          const toEmp = getEmployee(t.to);
+          const val = gratitude.values.find(v => v.id === t.value);
+          return `
+            <div class="thank-item">
+              <div class="thank-avatars">
+                <div class="thank-avatar from">${fromEmp ? fromEmp.avatar : '?'}</div>
+                <div class="thank-arrow">↓</div>
+                <div class="thank-avatar to">${toEmp ? toEmp.avatar : '?'}</div>
+              </div>
+              <div class="thank-body">
+                <div class="thank-message"><strong>${fromEmp ? fromEmp.name : '?'}</strong> → <strong>${toEmp ? toEmp.name : '?'}</strong></div>
+                <div class="thank-message">${t.message}</div>
+                <div class="thank-meta">
+                  ${val ? `<span class="thank-value-badge" style="background:${val.color}">${val.name}</span>` : ''}
+                  <span class="thank-time">${t.time} · ${t.date}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <h3>Лидеры благодарностей</h3>
+      <div class="gratitude-leaders">
+        ${topThanked.map(t => {
+          const emp = getEmployee(t.id);
+          return emp ? `
+            <div class="g-leader">
+              <div class="g-leader-avatar">${emp.avatar}</div>
+              <div class="g-leader-name">${emp.name.split(' ')[0]}</div>
+              <div class="g-leader-count">${t.count} спасибо</div>
+            </div>
+          ` : '';
+        }).join('')}
+      </div>
+    </div>
+  `;
+  return html;
 }
 
 function updateStatus() {

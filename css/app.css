@@ -1005,6 +1005,318 @@ body {
   to { opacity: 0; transform: translateX(-50%) translateY(20px); }
 }
 
+/* Gratitude / Благодарности */
+.gratitude-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.gratitude-stat {
+  background: var(--bg-card);
+  padding: 16px 12px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.gratitude-stat .g-stat-value {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #EC4899, #8B5CF6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gratitude-stat .g-stat-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.value-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.value-pill {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  border: none;
+}
+
+.value-pill:hover {
+  opacity: 0.8;
+}
+
+.value-pill.active {
+  box-shadow: 0 0 0 2px white;
+}
+
+.thanks-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.thank-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  align-items: flex-start;
+  transition: background 0.2s;
+}
+
+.thank-item:hover {
+  background: var(--bg-light);
+}
+
+.thank-avatars {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-width: 40px;
+}
+
+.thank-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.thank-avatar.from {
+  background: linear-gradient(135deg, #EC4899, #8B5CF6);
+}
+
+.thank-avatar.to {
+  background: linear-gradient(135deg, #3B82F6, #10B981);
+}
+
+.thank-arrow {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.thank-body {
+  flex: 1;
+}
+
+.thank-message {
+  font-size: 14px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.thank-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.thank-value-badge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+}
+
+.thank-time {
+  color: var(--text-muted);
+}
+
+.gratitude-balance {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background: var(--bg-card);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.g-balance-item {
+  text-align: center;
+}
+
+.g-balance-item .num {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.g-balance-item .lbl {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.g-balance-item.sent .num { color: #EC4899; }
+.g-balance-item.received .num { color: #10B981; }
+
+.send-gratitude {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.send-gratitude h4 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.send-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.send-select {
+  flex: 1;
+  padding: 10px 12px;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+
+.send-select option {
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.send-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.send-input::placeholder {
+  color: var(--text-muted);
+}
+
+.send-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--gradient-btn);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.send-btn:hover {
+  transform: scale(1.02);
+}
+
+.gratitude-leaders {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 0 12px;
+}
+
+.g-leader {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 12px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  min-width: 80px;
+}
+
+.g-leader-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #EC4899, #8B5CF6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 auto 6px;
+}
+
+.g-leader-name {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.g-leader-count {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Floating action button */
+.fab-btn {
+  position: absolute;
+  bottom: 80px;
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gradient-btn);
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  z-index: 10;
+}
+
+.fab-btn:hover {
+  transform: scale(1.1);
+}
+
 /* Responsive */
 @media (min-width: 768px) {
   .features {
